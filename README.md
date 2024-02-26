@@ -1,10 +1,8 @@
-# karmen-vuejs-simple-dashboard
+# Karmen Print Farm Dashboard
 
-This template should help get you started developing with Vue 3 in Vite.
+This application is an example of a simple "Print Farm Dashboard" that runs completely in the browser and utilizes the Karmen REST API. It can be used locally in your workplace or at school to display basic data about your current 3D printer fleet, including statuses for each printer.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+This application is created in VueJS, is completely open-source, and can serve as a starting point for your own customized 3D printing farm dashboard.
 
 ## Customize configuration
 
@@ -26,10 +24,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
