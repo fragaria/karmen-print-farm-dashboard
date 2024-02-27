@@ -1,4 +1,4 @@
-let API_URL_PREFIX = 'http://127.0.0.1:8888/api/2/'
+let API_URL_PREFIX = 'https://preprod1.next.karmen.tech/api/2/'
 let API_TOKEN = null
 
 export default {
