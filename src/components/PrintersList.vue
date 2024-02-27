@@ -42,10 +42,12 @@
             </div>
 
             <!-- camera -->
-            <img :ref="`cameraImageRef_${printer.id}`" src="/no-image.png" class="w-2/5 mx-auto" />
+            <div class="hidden lg:block">
+              <img :ref="`cameraImageRef_${printer.id}`" src="/no-image.png" class="w-2/4 mx-auto" />
+            </div>
 
             <!-- printer state -->
-            <div class="text-sm font-medium border-b border-gray-300">
+            <div class="text-xs lg:text-sm font-medium border-b border-gray-300">
               <div v-if="printer.stateId == 'PRINTING'" class="bg-blue-400 text-white p-1 text-center">{{ printer.state }}</div>
               <div v-else-if="printer.stateId == 'READY'" class="bg-green-500 text-white p-1 text-center">{{ printer.state }}</div>
               <div v-else-if="printer.stateId == 'DISCONNECTED'" class="bg-yellow-400 text-gray-900 px-2 p-1 text-center">{{ printer.state }}</div>
@@ -67,7 +69,7 @@
 
           <!-- printer name and printjob info -->
           <div class="">
-            <div class="text-center text-base font-medium pt-2">{{ printer.name }}</div>
+            <div class="text-center font-medium pt-2 text-xs lg:text-base">{{ printer.name }}</div>
             <div class="text-center truncate text-sm px-4">{{ printer.note }}</div>
             <div
               v-if="printer?.printjobs?.results?.length > 0"
@@ -75,7 +77,7 @@
               :class="{'border-t border-gray-200': printer?.printjobs?.results?.length > 0}"
             >
               <div>{{ new Date(printer.printjobs.results[0].started_on).toLocaleString('cs-CZ') }}</div>
-              <div class="break-all text-base font-medium">{{ printer.printjobs.results[0].file_name }}</div>
+              <div class="break-all font-medium text-xs lg:text-base">{{ printer.printjobs.results[0].file_name }}</div>
               <div class="break-all">{{ printer.printjobs.results[0].username }}</div>
             </div>
           </div>
