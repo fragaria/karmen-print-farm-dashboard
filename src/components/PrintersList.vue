@@ -1,49 +1,89 @@
 <template>
 
-  <ul v-if="printers?.length > 0" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-    <li v-for="printer in printers" :key="printer.id" class="col-span-1 flex flex-col divide-y divide-gray-200 pb-2 rounded-lg bg-white text-center shadow-lg border border-1 border-gray-300">
-      <div class="flex flex-1 flex-col">
-        <div class="text-sm font-medium border-b border-gray-300">
-          <div v-if="printer.stateId == 'PRINTING'" class="bg-blue-400 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
-          <div v-else-if="printer.stateId == 'READY'" class="bg-green-500 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
-          <div v-else-if="printer.stateId == 'DISCONNECTED'" class="bg-yellow-400 text-gray-900 px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
-          <div v-else-if="['PAUSED', 'CANCELLING'].includes(printer.stateId)" class="bg-red-500 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
-          <div v-else class="bg-gray-100 text-gray-600 px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
-        </div>
-        <img :ref="`cameraImageRef_${printer.id}`" class="h-auto w-full flex-shrink-0" src="/no-image.png" />
-        <div v-if="printer?.client?.octoprint?.printer?.temperature" class="grid grid-cols-2 text-xs px-1 pt-1 bg-gray-100">
-          <div class="text-start">
-            {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.actual?.toFixed(1) }}°C
-            / {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.target?.toFixed(1) }}°C
-          </div>
-          <div class="text-end">
-            {{ printer?.client?.octoprint?.printer?.temperature?.bed?.actual?.toFixed(1) }}°C
-            / {{ printer?.client?.octoprint?.printer?.temperature?.bed?.target?.toFixed(1) }}°C
-          </div>
-        </div>
-        <div v-if="printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) > 0
-            && (printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(0) < 100 || printer.stateId == 'PRINTING')"
-          class="text-sm font-medium bg-gray-100 border-b border-gray-300 relative"
+  <div v-if="printers?.length > 0" class="absolute top-16 left-0 right-0 bottom-8 grid auto-rows-auto">
+
+    <div v-for="i in gridRows" :key="i" class="flex flex-row mt-8 mx-8">
+
+      <div class="w-full grid gap-8"
+        :class="{
+          'grid-cols-1': gridCols == 1,
+          'grid-cols-2': gridCols == 2,
+          'grid-cols-3': gridCols == 3,
+          'grid-cols-4': gridCols == 4,
+          'grid-cols-5': gridCols == 5,
+          'grid-cols-6': gridCols == 6,
+          'grid-cols-7': gridCols == 7,
+          'grid-cols-8': gridCols == 8,
+          'grid-cols-9': gridCols == 9,
+          'grid-cols-10': gridCols == 10,
+          'grid-cols-11': gridCols == 11,
+          'grid-cols-12': gridCols == 12
+        }"
+      >
+
+        <div v-for="j in calculateColsCount(i)" :key="j"
+          :set="printer = printers[(((i-1)*gridCols) + j) - 1]"
+          class="flex flex-col border border-3 border-gray-400 shadow-lg"
         >
-          <div class="bg-blue-200" :style="'width:' + printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) + '%'">
-            <div>&nbsp;</div>
-            <div class="absolute top-0 left-0 right-0 border border-1 border-blue-200">{{ printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) }} %</div>
+          <div class="bg-gray-200 relative">
+
+            <!-- printer temperatures -->
+            <div v-if="printer?.client?.octoprint?.printer?.temperature" class="absolute top-0 left-0">
+              <div class="text-xs px-1 pt-1">
+                <div class="bg-gray-400 text-white px-2 pt-1">
+                  {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.actual?.toFixed(1) }}°C
+                  / {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.target?.toFixed(1) }}°C
+                </div>
+                <div class="bg-gray-400 text-white px-2 pb-1">
+                  {{ printer?.client?.octoprint?.printer?.temperature?.bed?.actual?.toFixed(1) }}°C
+                  / {{ printer?.client?.octoprint?.printer?.temperature?.bed?.target?.toFixed(1) }}°C
+                </div>
+              </div>
+            </div>
+
+            <!-- camera -->
+            <img :ref="`cameraImageRef_${printer.id}`" src="/no-image.png" class="w-2/5 mx-auto" />
+
+            <!-- printer state -->
+            <div class="text-sm font-medium border-b border-gray-300">
+              <div v-if="printer.stateId == 'PRINTING'" class="bg-blue-400 text-white p-1 text-center">{{ printer.state }}</div>
+              <div v-else-if="printer.stateId == 'READY'" class="bg-green-500 text-white p-1 text-center">{{ printer.state }}</div>
+              <div v-else-if="printer.stateId == 'DISCONNECTED'" class="bg-yellow-400 text-gray-900 px-2 p-1 text-center">{{ printer.state }}</div>
+              <div v-else-if="['PAUSED', 'CANCELLING'].includes(printer.stateId)" class="bg-red-500 text-white p-1 text-center">{{ printer.state }}</div>
+              <div v-else class="bg-gray-400 text-white p-1 text-center">{{ printer.state }}</div>
+            </div>
           </div>
+
+          <!-- progress -->
+          <div v-if="printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) > 0
+              && (printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(0) < 100 || printer.stateId == 'PRINTING')"
+            class="text-sm font-medium bg-gray-100 border-b border-gray-300 relative"
+          >
+            <div class="bg-blue-200" :style="'width:' + printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) + '%'">
+              <div>&nbsp;</div>
+              <div class="absolute top-0 left-0 right-0 border border-1 border-blue-200 text-center">{{ printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) }} %</div>
+            </div>
+          </div>
+
+          <!-- printer name and printjob info -->
+          <div class="">
+            <div class="text-center text-base font-medium pt-2">{{ printer.name }}</div>
+            <div class="text-center truncate text-sm px-4">{{ printer.note }}</div>
+            <div
+              v-if="printer?.printjobs?.results?.length > 0"
+              class="flex flex-col text-xs px-4 mt-2 mb-2 gap-y-1 pt-2"
+              :class="{'border-t border-gray-200': printer?.printjobs?.results?.length > 0}"
+            >
+              <div>{{ new Date(printer.printjobs.results[0].started_on).toLocaleString('cs-CZ') }}</div>
+              <div class="break-all text-base font-medium">{{ printer.printjobs.results[0].file_name }}</div>
+              <div class="break-all">{{ printer.printjobs.results[0].username }}</div>
+            </div>
+          </div>
+
         </div>
-        <h3 class="mt-2 text-base font-medium text-gray-900">{{ printer.name }}</h3>
-        <div v-if="printer.note" class="text-sm text-gray-500 truncate px-4">{{ printer.note }}</div>
-        <dl
-          v-if="printer?.printjobs?.results?.length > 0"
-          class="flex flex-col text-xs px-4 mt-2 mb-2 gap-y-1 pt-2"
-          :class="{'border-t border-gray-200': printer?.printjobs?.results?.length > 0}"
-        >
-          <dd>{{ new Date(printer.printjobs.results[0].started_on).toLocaleString('cs-CZ') }}</dd>
-          <dd class="break-all text-base font-medium">{{ printer.printjobs.results[0].file_name }}</dd>
-          <dd class="break-all">{{ printer.printjobs.results[0].username }}</dd>
-        </dl>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 
   <div v-else class="mt-8">There are no printers in selected workspace.</div>
 
@@ -70,12 +110,17 @@ export default {
   data() {
     return {
       printers: [],
-      isPolling: false
+      isPolling: false,
+
+      gridRows: 0,
+      gridCols: 0
     }
   },
 
   methods: {
     async reload() {
+      this.printers = []
+
       if (this.groupId) {
         this.printers = (await (await httpClient.authFetch(`groups/${this.groupId}/printers/`)).json())
           .filter((val) => {
@@ -85,8 +130,46 @@ export default {
             val.state = '...'
             return val
           })
+      }
+
+      // TODO: calculate number of rows/cols better
+      let printersCount = this.printers.length      
+      if (printersCount == 1) {
+        this.gridRows = 1
+        this.gridCols = 1
+      } else if (printersCount <= 2) {
+        this.gridRows = 1
+        this.gridCols = 2
+      } else if (printersCount <= 4) {
+        this.gridRows = 2
+        this.gridCols = 2
+      } else if (printersCount <= 6) {
+        this.gridRows = 2
+        this.gridCols = 3
+      } else if (printersCount <= 8) {
+        this.gridRows = 2
+        this.gridCols = 4
+      } else if (printersCount == 9) {
+        this.gridRows = 3
+        this.gridCols = 3
+      } else if (printersCount <= 10) {
+        this.gridRows = 2
+        this.gridCols = 5
+      } else if (printersCount <= 12) {
+        this.gridRows = 3
+        this.gridCols = 4
+      } else if (printersCount <= 14) {
+        this.gridRows = 3
+        this.gridCols = 5
+      } else if (printersCount <= 16) {
+        this.gridRows = 4
+        this.gridCols = 4
+      } else if (printersCount <= 18) {
+        this.gridRows = 4
+        this.gridCols = 5
       } else {
-        this.printers = []
+        this.gridRows = 5
+        this.gridCols = 5
       }
 
       if (this.printers.length > 0) {
@@ -97,6 +180,7 @@ export default {
     async polling() {
       if (! this.isPolling) {
         this.isPolling = true
+        // TODO: don't poll when browser is not visible or browser tab is not active
         while (true) {
           await this.pollPrintersState()
           await this.pollPrintersJobs()
@@ -153,15 +237,17 @@ export default {
     },
 
     async pollPrinterCamera(printer) {
-      let ref = this.$refs[`cameraImageRef_${printer.id}`][0]
-      if (['PRINTING', 'READY', 'PAUSED', 'CANCELLING', 'POWERED_OFF', 'DISCONNECTED'].includes(printer.stateId)) {
-        const response = await httpClient.authFetch(`printers/${printer.id}/snapshot/`)
-        if (response.status == 200) {
-          ref.src = 'data:image/jpeg;base64,' + arrayBufferToBase64(await response.arrayBuffer())
+      let ref = this.$refs[`cameraImageRef_${printer.id}`]
+      if (ref) {
+        if (['PRINTING', 'READY', 'PAUSED', 'CANCELLING', 'POWERED_OFF', 'DISCONNECTED'].includes(printer.stateId)) {
+          const response = await httpClient.authFetch(`printers/${printer.id}/snapshot/`)
+          if (response.status == 200) {
+            ref[0].src = 'data:image/jpeg;base64,' + arrayBufferToBase64(await response.arrayBuffer())
+          }
         }
-      }
-      else {
-        ref.src = '/no-image.png'
+        else {
+          ref[0].src = '/no-image.png'
+        }
       }
     },
 
@@ -169,6 +255,14 @@ export default {
       for (let printer of this.printers) {
         printer.printjobs = await (await httpClient.authFetch(`groups/${this.groupId}/print-jobs/?printer_id=${printer.id}`)).json()
       }
+    },
+
+    calculateColsCount(row) {
+      let c = this.gridCols * row
+      if (c > this.printers.length) {
+        c = this.printers.length
+      }
+      return c - (this.gridCols * (row - 1))
     }
   }
 }
