@@ -1,20 +1,22 @@
 <template>
-  <Settings v-if="showSettings" @save="checkSettings" />
-  <template v-else>
-    <header class="absolute inset-x-0 top-0 z-50 flex h-16 border-b border-gray-900/10">
-      <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-1 items-center gap-x-6">
-          <img ref="avatarImgRef" class="h-8 w-auto" src="" />
-          <SimpleDropdown :values="groups" @change="onGroupChange" />
+  <div>
+    <Settings v-if="showSettings" @save="checkSettings" />
+    <template v-else>
+      <header class="absolute inset-x-0 top-0 z-50 flex h-16 border-b border-gray-900/10">
+        <div class="flex w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-1 items-center gap-x-6">
+            <img ref="avatarImgRef" class="h-8 w-auto" src="" />
+            <SimpleDropdown :values="groups" @change="onGroupChange" />
+          </div>
         </div>
-      </div>
-    </header>
-    <main>
-      <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <PrintersList :groupId="selectedGroup?.id" />
-      </div>
-    </main>
-  </template>
+      </header>
+      <main>
+        <div class="px-4 py-16 sm:px-6 lg:px-8">
+          <PrintersList :groupId="selectedGroup?.id" />
+        </div>
+      </main>
+    </template>
+  </div>
 </template>
 
 <script>

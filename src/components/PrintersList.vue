@@ -1,65 +1,62 @@
 <template>
-  <div class="px-4 sm:px-6 lg:px-8">
-    <div class="mt-8 flow-root">
-      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-          <table class="min-w-full divide-y divide-gray-300">
-            <thead>
-              <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Name</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">State</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Description</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last printjob</th>
-                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                  <span class="sr-only">Edit</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="printer in printers" :key="printer.id">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{{ printer.name }}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                  <div>
-                    <span v-if="printer.stateId == 'PRINTING'"
-                      class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium bg-blue-400 text-white">{{ printer.state }}</span>
-                    <span v-else-if="printer.stateId == 'READY'"
-                      class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium bg-green-500 text-white">{{ printer.state }}</span>
-                    <span v-else-if="printer.stateId == 'DISCONNECTED'"
-                      class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium bg-yellow-400 text-gray-900">{{ printer.state }}</span>
-                    <span v-else-if="['PAUSED', 'CANCELLING'].includes(printer.stateId)"
-                      class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium bg-red-500 text-white">{{ printer.state }}</span>
-                    <span v-else
-                      class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600">{{ printer.state }}</span>
-                  </div>
-                  <div v-if="printer?.client?.octoprint?.printer?.temperature" class="pt-2">
-                    <div>Tool: {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.actual?.toFixed(1) }}°C / {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.target?.toFixed(1) }}°C</div>
-                    <div>Bed: {{ printer?.client?.octoprint?.printer?.temperature?.bed?.actual?.toFixed(1) }}°C / {{ printer?.client?.octoprint?.printer?.temperature?.bed?.target?.toFixed(1) }}°C</div>
-                    <div>Progress: {{ printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) }}%</div>
-                  </div>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ printer.note }}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                  <div v-if="!printer?.printjobs">...</div>
-                  <div v-else-if="printer?.printjobs?.results?.length > 0">
-                    <div>{{ printer.printjobs.results[0].started_on }}</div>
-                    <div>{{ printer.printjobs.results[0].file_name }}</div>
-                    <div>{{ printer.printjobs.results[0].username }}</div>
-                  </div>
-                  <div v-else>no print history</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+  <ul v-if="printers?.length > 0" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+    <li v-for="printer in printers" :key="printer.id" class="col-span-1 flex flex-col divide-y divide-gray-200 pb-2 rounded-lg bg-white text-center shadow-lg border border-1 border-gray-300">
+      <div class="flex flex-1 flex-col">
+        <div class="text-sm font-medium border-b border-gray-300">
+          <div v-if="printer.stateId == 'PRINTING'" class="bg-blue-400 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
+          <div v-else-if="printer.stateId == 'READY'" class="bg-green-500 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
+          <div v-else-if="printer.stateId == 'DISCONNECTED'" class="bg-yellow-400 text-gray-900 px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
+          <div v-else-if="['PAUSED', 'CANCELLING'].includes(printer.stateId)" class="bg-red-500 text-white px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
+          <div v-else class="bg-gray-100 text-gray-600 px-2 py-1 rounded-t-lg">{{ printer.state }}</div>
         </div>
+        <img :ref="`cameraImageRef_${printer.id}`" class="h-auto w-full flex-shrink-0" src="/no-image.png" />
+        <div v-if="printer?.client?.octoprint?.printer?.temperature" class="grid grid-cols-2 text-xs px-1 pt-1 bg-gray-100">
+          <div class="text-start">
+            {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.actual?.toFixed(1) }}°C
+            / {{ printer?.client?.octoprint?.printer?.temperature?.tool0?.target?.toFixed(1) }}°C
+          </div>
+          <div class="text-end">
+            {{ printer?.client?.octoprint?.printer?.temperature?.bed?.actual?.toFixed(1) }}°C
+            / {{ printer?.client?.octoprint?.printer?.temperature?.bed?.target?.toFixed(1) }}°C
+          </div>
+        </div>
+        <div v-if="printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) > 0
+            && (printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(0) < 100 || printer.stateId == 'PRINTING')"
+          class="text-sm font-medium bg-gray-100 border-b border-gray-300 relative"
+        >
+          <div class="bg-blue-200" :style="'width:' + printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) + '%'">
+            <div>&nbsp;</div>
+            <div class="absolute top-0 left-0 right-0 border border-1 border-blue-200">{{ printer?.client?.octoprint?.printer?.currentJob?.completion?.toFixed(2) }} %</div>
+          </div>
+        </div>
+        <h3 class="mt-2 text-base font-medium text-gray-900">{{ printer.name }}</h3>
+        <div v-if="printer.note" class="text-sm text-gray-500 truncate px-4">{{ printer.note }}</div>
+        <dl
+          v-if="printer?.printjobs?.results?.length > 0"
+          class="flex flex-col text-xs px-4 mt-2 mb-2 gap-y-1 pt-2"
+          :class="{'border-t border-gray-200': printer?.printjobs?.results?.length > 0}"
+        >
+          <dd>{{ new Date(printer.printjobs.results[0].started_on).toLocaleString('cs-CZ') }}</dd>
+          <dd class="break-all text-base font-medium">{{ printer.printjobs.results[0].file_name }}</dd>
+          <dd class="break-all">{{ printer.printjobs.results[0].username }}</dd>
+        </dl>
       </div>
-    </div>
-  </div>
+    </li>
+  </ul>
+
+  <div v-else class="mt-8">There are no printers in selected workspace.</div>
+
 </template>
 
 <script>
+import arrayBufferToBase64 from '@/arrayBufferToBase64'
 import httpClient from '@/httpClient.js'
 
 export default {
+  components: {
+  },
+
   props: {
     groupId: String
   },
@@ -80,18 +77,21 @@ export default {
   methods: {
     async reload() {
       if (this.groupId) {
-        this.printers = (await (await httpClient.authFetch(`groups/${this.groupId}/printers/`)).json()).map((val) => {
-          val.state = '...'
-          return val
-        })
+        this.printers = (await (await httpClient.authFetch(`groups/${this.groupId}/printers/`)).json())
+          .filter((val) => {
+            return val.enabled
+          })
+          .map((val) => {
+            val.state = '...'
+            return val
+          })
       } else {
         this.printers = []
       }
 
-      await this.pollPrintersState()
-      await this.pollPrintersJobs()
-
-      this.polling()
+      if (this.printers.length > 0) {
+        this.polling()
+      }
     },
 
     async polling() {
@@ -147,6 +147,21 @@ export default {
         if (data?.client?.octoprint?.error?.code != 'moved-to-background') {
           printer.client = data.client
         }
+
+        this.pollPrinterCamera(printer)
+      }
+    },
+
+    async pollPrinterCamera(printer) {
+      let ref = this.$refs[`cameraImageRef_${printer.id}`][0]
+      if (['PRINTING', 'READY', 'PAUSED', 'CANCELLING', 'POWERED_OFF', 'DISCONNECTED'].includes(printer.stateId)) {
+        const response = await httpClient.authFetch(`printers/${printer.id}/snapshot/`)
+        if (response.status == 200) {
+          ref.src = 'data:image/jpeg;base64,' + arrayBufferToBase64(await response.arrayBuffer())
+        }
+      }
+      else {
+        ref.src = '/no-image.png'
       }
     },
 
