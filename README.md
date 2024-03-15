@@ -4,6 +4,8 @@ This application is an example of a simple "Print Farm Dashboard" that runs comp
 
 This application is created in VueJS, is completely open-source, and can serve as a starting point for your own customized 3D printing farm dashboard.
 
+**Running demo:** https://karmen-print-farm-dashboard.netlify.app/
+
 ## Customize configuration
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).
